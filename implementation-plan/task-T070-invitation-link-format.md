@@ -1,6 +1,6 @@
 # T070 — Invitation link format & parsing (core)
 
-## Statut : `pending`
+## Statut : `done`
 
 ## Description
 
