@@ -1,11 +1,20 @@
 version: 2
 
+registries: {}
+
 updates:
   # NPM — root monorepo (pnpm workspaces)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "arnaudroubinet"
+    labels:
+      - "dependencies"
+      - "npm"
     groups:
       dev-dependencies:
         dependency-type: "development"
@@ -17,6 +26,14 @@ updates:
     directory: "/packages/core"
     schedule:
       interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "arnaudroubinet"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "core"
     groups:
       dev-dependencies:
         dependency-type: "development"
@@ -28,6 +45,14 @@ updates:
     directory: "/packages/web"
     schedule:
       interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "arnaudroubinet"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "web"
     groups:
       dev-dependencies:
         dependency-type: "development"
@@ -39,6 +64,14 @@ updates:
     directory: "/server"
     schedule:
       interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "arnaudroubinet"
+    labels:
+      - "dependencies"
+      - "maven"
+      - "server"
     groups:
       quarkus:
         patterns:
@@ -51,9 +84,21 @@ updates:
     directory: "/docker"
     schedule:
       interval: "weekly"
+      day: "monday"
+    reviewers:
+      - "arnaudroubinet"
+    labels:
+      - "dependencies"
+      - "docker"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+    reviewers:
+      - "arnaudroubinet"
+    labels:
+      - "dependencies"
+      - "github-actions"

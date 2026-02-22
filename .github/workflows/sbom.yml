@@ -1,0 +1,37 @@
+name: SBOM
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: Syft — SBOM Generation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@v4
+
+      - name: Generate SBOM (filesystem)
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: sbom-lokini.spdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-lokini
+          path: sbom-lokini.spdx.json
+          retention-days: 90
