@@ -188,7 +188,9 @@ export interface CreateDocumentOptions {
  *
  * @throws {Error} if any required field is invalid
  */
-export function createDocument(options: CreateDocumentOptions): DocumentMetadata {
+export function createDocument(
+  options: CreateDocumentOptions,
+): DocumentMetadata {
   const {
     id,
     type,
@@ -264,9 +266,7 @@ export function addParticipant(
     (p) => p.deviceId === participant.deviceId,
   );
   if (alreadyExists) {
-    throw new Error(
-      `Device ${participant.deviceId} is already a participant`,
-    );
+    throw new Error(`Device ${participant.deviceId} is already a participant`);
   }
 
   return {
@@ -285,17 +285,13 @@ export function removeParticipant(
   document: DocumentMetadata,
   deviceId: DeviceId,
 ): DocumentMetadata {
-  const index = document.participants.findIndex(
-    (p) => p.deviceId === deviceId,
-  );
+  const index = document.participants.findIndex((p) => p.deviceId === deviceId);
   if (index === -1) {
     throw new Error(`Device ${deviceId} is not a participant`);
   }
 
   return {
     ...document,
-    participants: document.participants.filter(
-      (p) => p.deviceId !== deviceId,
-    ),
+    participants: document.participants.filter((p) => p.deviceId !== deviceId),
   };
 }

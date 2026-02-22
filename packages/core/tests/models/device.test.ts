@@ -64,7 +64,9 @@ describe("DeviceId", () => {
   });
 
   it("should throw when creating a DeviceId from an empty string", () => {
-    expect(() => createDeviceId("")).toThrow("DeviceId must be a non-empty string");
+    expect(() => createDeviceId("")).toThrow(
+      "DeviceId must be a non-empty string",
+    );
   });
 });
 
@@ -87,7 +89,9 @@ describe("DocumentId", () => {
   });
 
   it("should throw when creating a DocumentId from an empty string", () => {
-    expect(() => createDocumentId("")).toThrow("DocumentId must be a non-empty string");
+    expect(() => createDocumentId("")).toThrow(
+      "DocumentId must be a non-empty string",
+    );
   });
 });
 
@@ -160,7 +164,10 @@ describe("DeviceKeyPair validation", () => {
   it("should reject if X25519 keys are invalid", () => {
     expect(
       isValidDeviceKeyPair({
-        x25519: { publicKey: new Uint8Array(16), privateKey: new Uint8Array(32) },
+        x25519: {
+          publicKey: new Uint8Array(16),
+          privateKey: new Uint8Array(32),
+        },
         ed25519: fakeEd25519KeyPair(),
       }),
     ).toBe(false);
@@ -170,7 +177,10 @@ describe("DeviceKeyPair validation", () => {
     expect(
       isValidDeviceKeyPair({
         x25519: fakeX25519KeyPair(),
-        ed25519: { publicKey: new Uint8Array(32), privateKey: new Uint8Array(32) },
+        ed25519: {
+          publicKey: new Uint8Array(32),
+          privateKey: new Uint8Array(32),
+        },
       }),
     ).toBe(false);
   });
@@ -195,7 +205,12 @@ describe("DeviceIdentity", () => {
   });
 
   it("should create a valid identity with document pseudonym", () => {
-    const identity = createDeviceIdentity(deviceId, documentId, keyPair, "Alice (work)");
+    const identity = createDeviceIdentity(
+      deviceId,
+      documentId,
+      keyPair,
+      "Alice (work)",
+    );
 
     expect(identity.documentPseudonym).toBe("Alice (work)");
   });
@@ -263,7 +278,9 @@ describe("Multiple identities per device", () => {
     expect(identityA.id).not.toBe(identityB.id);
     expect(identityA.documentId).not.toBe(identityB.documentId);
     expect(identityA.keyPair).not.toBe(identityB.keyPair);
-    expect(identityA.keyPair.x25519.publicKey).not.toEqual(identityB.keyPair.x25519.publicKey);
+    expect(identityA.keyPair.x25519.publicKey).not.toEqual(
+      identityB.keyPair.x25519.publicKey,
+    );
   });
 });
 
@@ -277,7 +294,12 @@ describe("resolveDisplayName", () => {
   const keyPair = fakeDeviceKeyPair();
 
   it("should return document pseudonym when both are set", () => {
-    const identity = createDeviceIdentity(deviceId, documentId, keyPair, "Doc-Alice");
+    const identity = createDeviceIdentity(
+      deviceId,
+      documentId,
+      keyPair,
+      "Doc-Alice",
+    );
     const profile: DeviceProfile = { globalPseudonym: "GlobalAlice" };
 
     expect(resolveDisplayName(identity, profile)).toBe("Doc-Alice");
@@ -298,7 +320,12 @@ describe("resolveDisplayName", () => {
   });
 
   it("should return document pseudonym even when global is undefined", () => {
-    const identity = createDeviceIdentity(deviceId, documentId, keyPair, "Doc-Only");
+    const identity = createDeviceIdentity(
+      deviceId,
+      documentId,
+      keyPair,
+      "Doc-Only",
+    );
     const profile: DeviceProfile = {};
 
     expect(resolveDisplayName(identity, profile)).toBe("Doc-Only");

@@ -142,7 +142,10 @@ export function isValidEd25519KeyPair(keyPair: Ed25519KeyPair): boolean {
 
 /** Validates a complete DeviceKeyPair. */
 export function isValidDeviceKeyPair(keyPair: DeviceKeyPair): boolean {
-  return isValidX25519KeyPair(keyPair.x25519) && isValidEd25519KeyPair(keyPair.ed25519);
+  return (
+    isValidX25519KeyPair(keyPair.x25519) &&
+    isValidEd25519KeyPair(keyPair.ed25519)
+  );
 }
 
 /** Validates a DeviceIdentity has valid fields. */

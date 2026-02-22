@@ -244,9 +244,9 @@ describe("createDocument", () => {
   });
 
   it("throws on empty server address", () => {
-    expect(() =>
-      createDocument(fakeDocumentOptions({ server: "" })),
-    ).toThrow("Server address must be a non-empty string");
+    expect(() => createDocument(fakeDocumentOptions({ server: "" }))).toThrow(
+      "Server address must be a non-empty string",
+    );
   });
 
   it("throws on invalid maxDevices", () => {
@@ -373,10 +373,7 @@ describe("removeParticipant", () => {
     const doc = createDocument(fakeDocumentOptions());
     const doc1 = addParticipant(doc, fakeParticipant("device-1"));
     const doc2 = addParticipant(doc1, fakeParticipant("device-2"));
-    const updated = removeParticipant(
-      doc2,
-      createDeviceId("device-1"),
-    );
+    const updated = removeParticipant(doc2, createDeviceId("device-1"));
     expect(updated.participants).toHaveLength(1);
     expect(updated.participants[0].deviceId).toBe("device-2");
   });
