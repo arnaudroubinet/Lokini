@@ -30,7 +30,9 @@ Le nombre maximum de devices par document est **configurable** (défaut : **40**
 
 ### 4.2 Identité
 
-Il n'y a pas de compte utilisateur. L'identité est basée sur le device. Chaque device possède sa propre identité.
+Il n'y a pas de compte utilisateur. L'identité d'un device est **propre à chaque document** : un device génère un **couple clé privée/publique par document** auquel il participe. Un même appareil physique a donc autant d'identités que de documents rejoints.
+
+Il n'y a pas d'identité globale du device.
 
 ### 4.3 Rejoindre un document
 
@@ -81,11 +83,15 @@ L'ajout de nouveaux types de documents se fait par le développeur, dans les rel
 
 ### 5.1 Types initiaux
 
-- **Note** : texte libre.
-- **To-do** : liste d'items, chaque item possède un état coché/décoché.
-- **Liste de courses** : *(structure à définir)*.
-
-*(Structure détaillée de chaque type à compléter)*
+- **Note** : texte riche (formatage : gras, italique, titres, listes, etc.).
+- **To-do** : liste d'items. Chaque item possède :
+  - Un libellé.
+  - Un état : en attente, en cours, fini.
+  - Un assigné : quel device/participant gère la tâche.
+- **Liste de courses** : liste d'entrées. Chaque entrée possède :
+  - Un libellé.
+  - Une quantité.
+  - Un état : acheté ou non.
 
 ## 6. Architecture serveur
 
@@ -94,6 +100,6 @@ Le serveur est un relais de synchronisation. Il ne peut pas lire le contenu des 
 - **Instance par défaut** : une instance publique est proposée pour un usage immédiat.
 - **Auto-hébergement** : les utilisateurs avancés peuvent déployer leur propre instance de serveur.
 
-Le client peut se connecter à **n'importe quel serveur** (adresse configurable). Cependant, un document donné ne vit que sur **un seul serveur** : tous les devices participant à ce document passent par le même serveur.
+Le client peut se connecter à **n'importe quel serveur** (adresse configurable). Un même device peut avoir des documents répartis sur **différents serveurs**. Cependant, un document donné ne vit que sur **un seul serveur** : tous les devices participant à ce document passent par le même serveur.
 
 Il n'y a pas de limite de taille sur les documents. Les échanges se font par deltas, qui sont petits par nature.
