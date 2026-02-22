@@ -4,7 +4,9 @@
  * Derives sub-keys (encryption, signature, storage) from shared secrets
  * using the Extract-then-Expand paradigm with HMAC-SHA256.
  *
- * Implementation uses libsodium-wrappers-sumo HMAC-SHA256 primitives.
+ * All HMAC-SHA256 operations are delegated to libsodium, which provides
+ * a constant-time, audited implementation. Sensitive intermediate values
+ * (PRK, previous T blocks) are wiped from memory after use.
  *
  * @see SPECIFICATIONS.md §6.2 — Cryptographic choices (HKDF-SHA256)
  * @see SPECIFICATIONS.md §6.3 — Key management (message key derivation)
@@ -103,9 +105,20 @@ export async function hkdfExpand(
     input.set(info, prev.length);
     input[prev.length + info.length] = i;
 
+    // Wipe previous T block before overwriting
+    if (prev.length > 0) {
+      sodium.memzero(prev);
+    }
+
     prev = new Uint8Array(hmacSha256(prk, input));
     okm.set(prev, (i - 1) * HKDF_HASH_LENGTH);
+
+    // Wipe HMAC input
+    sodium.memzero(input);
   }
+
+  // Wipe last T block
+  sodium.memzero(prev);
 
   return okm.slice(0, length);
 }
@@ -133,7 +146,12 @@ export async function hkdfDerive(
   length: number,
 ): Promise<Uint8Array> {
   const prk = await hkdfExtract(ikm, salt);
-  return hkdfExpand(prk, info, length);
+  try {
+    return await hkdfExpand(prk, info, length);
+  } finally {
+    // Wipe the intermediate PRK
+    sodium.memzero(prk);
+  }
 }
 
 // ---------------------------------------------------------------------------
