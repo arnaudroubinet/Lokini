@@ -19,10 +19,13 @@ Aucune.
 ## Critères d'acceptation
 
 - [ ] Type `DeviceId` (identifiant opaque du device pour un document)
-- [ ] Type `DeviceKeyPair` contenant clé publique X25519 et clé publique Ed25519
+- [ ] Type `DeviceKeyPair` contenant clé publique ET privée X25519, clé publique ET privée Ed25519
 - [ ] Type `DeviceIdentity` regroupant id, key pair, pseudonyme, et document associé
+- [ ] Type `DeviceSecret` (référence — implémenté dans T071, utilisé pour le chiffrement au repos)
 - [ ] Le pseudonyme est une string optionnelle (peut être surchargé par document)
 - [ ] Le pseudonyme global est distinct du pseudonyme par document
+- [ ] Distinction entre clés d'identité document (long terme) et clés éphémères (jonction, §6.6)
+- [ ] Les clés privées ne sont jamais exportées ni transmises sur le réseau
 - [ ] Aucune dépendance sur React, navigateur ou plateforme
 - [ ] Tests unitaires couvrant la structure et la validation des types
 

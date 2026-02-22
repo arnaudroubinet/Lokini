@@ -14,6 +14,7 @@ Implémenter le cas d'usage « synchroniser un document ». Orchestre le pull de
 ## Dépendances
 
 - T044 (Document store)
+- T014 (Delta packaging — ouverture des deltas reçus, scellement des deltas envoyés)
 - T015 (Sync protocol)
 - T039 (REST API client)
 - T040 (WebSocket client)

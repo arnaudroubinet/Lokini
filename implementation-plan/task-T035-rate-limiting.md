@@ -23,6 +23,8 @@ Implémenter la protection anti-abus par rate limiting sur les endpoints REST et
 - [ ] Seuils configurables par administrateur (variables d'environnement)
 - [ ] Réponse HTTP 429 (Too Many Requests) avec header Retry-After
 - [ ] Application sur tous les endpoints REST
+- [ ] Rate limiting sur les connexions WebSocket (limite de connexions/déconnexions rapides)
+- [ ] Protection contre les abus de reconnexion WebSocket (backoff imposé)
 - [ ] Tests unitaires et d'intégration
 
 ## Fichier cible

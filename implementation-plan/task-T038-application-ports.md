@@ -29,7 +29,7 @@ Définir les ports (interfaces) de la couche Application du client web. Ces inte
 
 ## Fichier cible
 
-`packages/web/src/application/usecases/` (ports directory)
+`packages/web/src/application/ports/`
 
 ## Étapes TDD
 

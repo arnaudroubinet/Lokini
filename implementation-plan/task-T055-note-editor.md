@@ -1,58 +1,57 @@
-# T055 — Note editor (ProseMirror integration)
+# T055 — Note editor (ProseMirror)
 
 ## Statut : `pending`
 
 ## Description
 
-Implémenter l'éditeur de notes riche avec ProseMirror. Mobile-first, avec formatage gras, italique, titres, listes et liens. Intégré avec le CRDT pour les modifications concurrentes.
+Implémenter l'éditeur de notes riche avec ProseMirror. Mobile-first, avec formatage gras, italique, titres, listes et liens. Cet éditeur fonctionne en local sans CRDT ; l'intégration CRDT est dans T074 (ProseMirror-Automerge bridge).
 
 ## Références spécifications
 
 - §5.1 — Note (texte riche, ProseMirror, mobile-first)
-- §4.8 — CRDT séquence pour le texte
 
 ## Dépendances
 
-- T047 (Edit document use case)
+- T003 (Note document type — schéma AST)
 - T051 (Theme system)
 
 ## Critères d'acceptation
 
-- [ ] Éditeur ProseMirror fonctionnel avec schéma Note
+- [ ] Schéma ProseMirror complet pour le type Note (paragraphe, heading H1-H3, liste à puces, liste numérotée, lien, gras, italique)
+- [ ] Composant `NoteEditor` React encapsulant ProseMirror
 - [ ] Barre d'outils : gras, italique, titres (H1-H3), liste à puces, liste numérotée, lien
 - [ ] Raccourcis clavier (Ctrl+B, Ctrl+I, etc.)
 - [ ] Mobile-first : barre d'outils adaptée aux écrans tactiles
-- [ ] Intégration avec le CRDT (chaque changement → delta CRDT)
-- [ ] Application des deltas distants sans perdre la position du curseur
+- [ ] Callbacks `onChange(content)` pour notifier les changements
 - [ ] Thème clair/sombre
 - [ ] Accessibilité (ARIA, navigation clavier)
 - [ ] Tests unitaires
 
 ## Fichier cible
 
-`packages/web/src/presentation/components/`
+`packages/web/src/presentation/components/editor/`
 
 ## Étapes TDD
 
 ### Étape 1 — Analyse
 
-- Définir le schéma ProseMirror complet
+- Définir le schéma ProseMirror complet correspondant au type Note (T003)
 - Concevoir la barre d'outils mobile-first
-- Planifier l'intégration CRDT ↔ ProseMirror
 - **Commit** : `T055-step1: analyze note editor`
 
 ### Étape 2 — Définition des interfaces
 
-- Définir le composant NoteEditor et ses props
-- Définir le bridge CRDT ↔ ProseMirror
+- Définir le composant `NoteEditor` et ses props (`content`, `onChange`, `readOnly`, `theme`)
+- Définir les commandes de formatage
 - **Commit** : `T055-step2: define note editor interfaces`
 
 ### Étape 3 — Écriture des tests
 
 - Tester le rendu de l'éditeur
-- Tester le formatage (bold, italic, etc.)
-- Tester l'intégration CRDT (modifications locales → delta)
-- Tester l'application de deltas distants
+- Tester le formatage (bold, italic, headings, lists, links)
+- Tester les raccourcis clavier
+- Tester le callback onChange
+- Tester le thème clair/sombre
 - **Commit** : `T055-step3: write note editor tests`
 
 ### Étape 4 — Implémentation
