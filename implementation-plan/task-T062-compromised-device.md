@@ -14,6 +14,7 @@ Implémenter le signalement de device compromis et la rotation des chain keys su
 
 - T060 (Sync channel management)
 - T009 (Chain key — régénération)
+- T069 (Chain key distribution — distribution des nouvelles clés aux participants restants)
 
 ## Critères d'acceptation
 

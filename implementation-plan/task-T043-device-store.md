@@ -14,13 +14,15 @@ Implémenter le store Zustand pour la gestion de l'identité du device : pseudon
 ## Dépendances
 
 - T001 (DeviceIdentity, DeviceProfile)
+- T005 (X25519 — génération des paires de clés pour chaque document)
+- T007 (Ed25519 — génération des paires de clés de signature)
 - T038 (LocalStoragePort pour persistance)
 
 ## Critères d'acceptation
 
 - [ ] Store `useDeviceStore` avec état : pseudonyme global, identités par document
 - [ ] Action `setGlobalPseudonym(name)` — définir/modifier le pseudonyme
-- [ ] Action `createIdentityForDocument(documentId)` — générer une identité
+- [ ] Action `createIdentityForDocument(documentId)` — générer une identité (appelle T005/T007 pour les paires de clés X25519 + Ed25519)
 - [ ] Action `getIdentityForDocument(documentId)` — récupérer l'identité
 - [ ] Action `setDocumentPseudonym(documentId, name)` — surcharger le pseudo pour un document
 - [ ] Persistance automatique dans IndexedDB

@@ -26,19 +26,19 @@ Chaque tâche suit une approche **TDD stricte** en 4 étapes, chacune avec son p
 
 | Phase | Tâches | Terminées | Statut |
 |-------|--------|-----------|--------|
-| 1. Core Models | T001–T003 | 0/3 | `pending` |
-| 2. Crypto Primitives | T004–T010 | 0/7 | `pending` |
+| 1. Core Models | T001–T003, T070 | 0/4 | `pending` |
+| 2. Crypto Primitives | T004–T010, T071 | 0/8 | `pending` |
 | 3. CRDT Engine | T011–T013 | 0/3 | `pending` |
-| 4. Sync Logic | T014–T016 | 0/3 | `pending` |
-| 5. Server Domain | T017–T026 | 0/10 | `pending` |
+| 4. Sync Logic | T014–T016, T069 | 0/4 | `pending` |
+| 5. Server Domain | T017–T026, T067, T068 | 0/12 | `pending` |
 | 6. Server Persistence | T027–T030 | 0/4 | `pending` |
 | 7. Server Adapters | T031–T037 | 0/7 | `pending` |
 | 8. Web Infrastructure | T038–T042 | 0/5 | `pending` |
 | 9. Web Application | T043–T050 | 0/8 | `pending` |
-| 10. Web Presentation | T051–T058 | 0/8 | `pending` |
+| 10. Web Presentation | T051–T058, T072, T073, T074 | 0/11 | `pending` |
 | 11. Multi-device Linking | T059–T064 | 0/6 | `pending` |
 | 12. Integration & E2E | T065–T066 | 0/2 | `pending` |
-| **Total** | **T001–T066** | **0/66** | |
+| **Total** | **T001–T074** | **0/74** | |
 
 ## Graphe de dépendances
 
@@ -70,6 +70,7 @@ Phase 11: Multi-device ────────┴──────────
 - **T001** Device identity model → aucune
 - **T002** Base document model → T001
 - **T003** Note document type → T002
+- **T070** Invitation link format & parsing → T002
 
 #### Phase 2 — Crypto Primitives (dépend de Phase 1)
 - **T004** HKDF-SHA256 → aucune
@@ -79,6 +80,7 @@ Phase 11: Multi-device ────────┴──────────
 - **T008** BLAKE2b token hashing → aucune
 - **T009** Symmetric ratchet (Sender Keys) → T004, T006
 - **T010** Argon2id at-rest encryption → T006
+- **T071** Device secret generation & management → T010
 
 #### Phase 3 — CRDT Engine (dépend de Phase 1)
 - **T011** CRDT document wrapper → T002, T003
@@ -89,6 +91,7 @@ Phase 11: Multi-device ────────┴──────────
 - **T014** Delta packaging (encrypt/sign) → T006, T007, T009, T012
 - **T015** Sync protocol (pull/push) → T014
 - **T016** Offline queue → T014, T015
+- **T069** Chain key distribution protocol → T005, T006, T009
 
 #### Phase 5 — Server Domain (indépendant du client)
 - **T017** Server domain models → aucune
@@ -101,6 +104,8 @@ Phase 11: Multi-device ────────┴──────────
 - **T024** Device push registration → T018, T019
 - **T025** Delta retention/cleanup → T018, T019
 - **T026** Device disconnection detection → T018, T019, T020
+- **T067** Create document use case → T018, T019
+- **T068** Create invitation use case → T018, T019, T008
 
 #### Phase 6 — Server Persistence (dépend de Phase 5)
 - **T027** Liquibase schema → T017
@@ -110,10 +115,10 @@ Phase 11: Multi-device ────────┴──────────
 
 #### Phase 7 — Server Adapters (dépend de Phases 5 + 6)
 - **T031** REST — Delta endpoints → T020, T021
-- **T032** REST — Document join/leave → T022, T023
+- **T032** REST — Document endpoints → T022, T023, T067, T068
 - **T033** REST — Device registration → T024
 - **T034** WebSocket adapter → T020, T021
-- **T035** Rate limiting → T031, T032, T033
+- **T035** Rate limiting → T031, T032, T033, T034
 - **T036** Push notification adapter (stub) → T019
 - **T037** Pub/Sub adapter (stub) → T019
 
@@ -125,13 +130,13 @@ Phase 11: Multi-device ────────┴──────────
 - **T042** Push notification registration → T038
 
 #### Phase 9 — Web Application (dépend de Phase 8)
-- **T043** Device store (Zustand) → T001, T038
+- **T043** Device store (Zustand) → T001, T005, T007, T038
 - **T044** Document store (Zustand) → T002, T038
 - **T045** Create document use case → T043, T044, T011, T005, T009
-- **T046** Join document use case → T043, T044, T005, T009
-- **T047** Edit document use case → T044, T012
-- **T048** Sync document use case → T044, T015, T039, T040
-- **T049** Leave document use case → T044, T039
+- **T046** Join document use case → T043, T044, T005, T009, T070
+- **T047** Edit document use case → T044, T012, T014
+- **T048** Sync document use case → T044, T014, T015, T039, T040
+- **T049** Leave document use case → T044, T039, T069
 - **T050** Offline sync orchestration → T048, T016, T041
 
 #### Phase 10 — Web Presentation (dépend de Phase 9)
@@ -139,16 +144,19 @@ Phase 11: Multi-device ────────┴──────────
 - **T052** i18n completion → aucune (indépendant)
 - **T053** Onboarding flow → T043, T051, T052
 - **T054** Document list page → T044, T051, T052
-- **T055** Note editor (ProseMirror) → T047, T051
+- **T055** Note editor (ProseMirror) → T003, T051
 - **T056** Document sharing UI → T045, T046
 - **T057** Participant list component → T044
 - **T058** Settings page → T043, T051, T052
+- **T072** Navigation & routing → T053, T054, T055, T058
+- **T073** Error notification system → T051, T052
+- **T074** ProseMirror-Automerge bridge → T055, T012, T047
 
 #### Phase 11 — Multi-device Linking (dépend de Phases multiples)
 - **T059** Linking protocol (core) → T005, T006, T009
 - **T060** Sync channel management → T059, T015
 - **T061** Heartbeat & deactivation → T060
-- **T062** Compromised device signaling → T060, T009
+- **T062** Compromised device signaling → T060, T009, T069
 - **T063** Server linking support → T022, T034
 - **T064** Web UI linking → T059, T060, T053
 
@@ -162,7 +170,11 @@ Les groupes suivants peuvent être développés en parallèle :
 
 1. **Phase 2 (Crypto)** et **Phase 3 (CRDT)** — après Phase 1
 2. **Phase 5 (Server Domain)** — indépendant des phases client
-3. **Phase 10 T051/T052 (Theme/i18n)** — indépendant du reste
+3. **Phase 10 T051/T052/T073 (Theme/i18n/Notifications)** — indépendant du reste
+
+## Historique des revues
+
+- **2026-02-22** : Revue complète (voir `REVIEW.md`). 8 tâches ajoutées (T067–T074), 12 enrichies, 1 scindée (T055 → T055 + T074). Total : 66 → 74 tâches.
 
 ## Fichiers de tâches
 

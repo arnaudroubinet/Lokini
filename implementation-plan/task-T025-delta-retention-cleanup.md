@@ -4,7 +4,7 @@
 
 ## Description
 
-Implémenter le nettoyage automatique des deltas selon la rétention bornée : suppression après 90 jours ou au-delà de 5000 deltas par device.
+Implémenter le nettoyage programmé (batch/cron) des deltas selon la rétention bornée : suppression après 90 jours ou au-delà de 5000 deltas par device. Cette tâche couvre le nettoyage planifié ; la détection événementielle est dans T026.
 
 ## Références spécifications
 

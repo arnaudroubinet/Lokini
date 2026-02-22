@@ -4,7 +4,7 @@
 
 ## Description
 
-Implémenter la détection et la gestion de la déconnexion d'un device. Quand les limites de rétention sont atteintes pour un device, le serveur le marque comme déconnecté et notifie les autres.
+Implémenter la détection événementielle de la déconnexion d'un device. Quand un nouveau delta arrive et que les limites de rétention sont déjà atteintes pour un device destinataire, le serveur le marque comme déconnecté et notifie les autres en temps réel. Cette tâche couvre la détection en temps réel et le flux de resynchronisation ; le nettoyage planifié est dans T025.
 
 ## Références spécifications
 

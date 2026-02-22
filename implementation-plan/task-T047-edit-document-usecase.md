@@ -16,12 +16,14 @@ Implémenter le cas d'usage « modifier un document localement ». Applique les 
 
 - T044 (Document store)
 - T012 (CRDT operations)
+- T014 (Delta packaging — scellement du delta avant mise en file)
 
 ## Critères d'acceptation
 
 - [ ] Application d'une modification sur le document CRDT actif
 - [ ] Génération du delta CRDT correspondant
-- [ ] Mise en file d'attente du delta pour envoi
+- [ ] Scellement du delta (chiffrement + signature via sealDelta, T014) avant mise en file
+- [ ] Mise en file d'attente du delta scellé pour envoi
 - [ ] Mise à jour du store avec le nouveau contenu
 - [ ] Sauvegarde locale automatique (debounced)
 - [ ] Support du texte riche (ProseMirror-compatible)

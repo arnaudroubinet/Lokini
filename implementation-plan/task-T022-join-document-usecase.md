@@ -24,6 +24,8 @@ Implémenter le cas d'usage « rejoindre un document via token d'invitation ». 
 - [ ] Enregistrement du nouveau device comme participant
 - [ ] Marquage du token comme utilisé
 - [ ] Notification aux devices existants de l'arrivée
+- [ ] Relais des messages d'échange de clés entre le nouveau device et un device existant (blobs opaques chiffrés, §6.6)
+- [ ] Le serveur ne peut pas lire le contenu des messages relayés (zero-knowledge)
 - [ ] Erreurs explicites : token expiré, token utilisé, document plein, aucun device actif
 - [ ] Tests unitaires couvrant tous les scénarios d'erreur
 

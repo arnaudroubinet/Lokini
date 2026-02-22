@@ -22,7 +22,7 @@ Implémenter l'écran principal affichant la liste de tous les documents. Suppor
 - [ ] Affichage de la liste des documents (titre, type, date modification, nb participants)
 - [ ] Tri par : date modification (défaut), nom, type
 - [ ] Filtrage par type de document
-- [ ] Recherche plein texte locale dans les titres
+- [ ] Recherche plein texte locale dans les titres et le contenu déchiffré des documents (§5.0)
 - [ ] Bouton « Créer un document »
 - [ ] Bouton « Rejoindre un document »
 - [ ] État vide (aucun document, avec call-to-action)

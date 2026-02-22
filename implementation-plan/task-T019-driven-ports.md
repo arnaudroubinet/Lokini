@@ -19,6 +19,7 @@ Définir les ports sortants (driven ports) du serveur : les interfaces pour la p
 
 ## Critères d'acceptation
 
+- [ ] Interface `DocumentRepository` (create, findById, delete, existsById)
 - [ ] Interface `DeltaRepository` (store, retrieve, delete, findExpired)
 - [ ] Interface `DeviceRepository` (register, unregister, findByDocument, updateLastActivity)
 - [ ] Interface `InvitationTokenRepository` (store, findByHash, markUsed, deleteExpired)
