@@ -63,6 +63,8 @@ Il n'y a pas de mécanisme d'exclusion. Un participant ne peut pas retirer un au
 
 Un participant peut **forker** un document : il crée une copie indépendante du document et choisit quels autres devices l'accompagnent dans ce fork. Le document original continue d'exister indépendamment.
 
+Le fork est un **nouveau document** à part entière : de nouvelles clés privées/publiques sont générées pour chaque device participant. Les clés du document original ne sont pas réutilisées.
+
 Les devices choisis sont notifiés du fork **via le document original** (le canal de communication existant). Ils n'ont pas besoin d'un nouveau lien d'invitation.
 
 ### 4.7 Synchronisation
@@ -125,11 +127,20 @@ Lors de l'arrivée d'un nouveau device sur un document (via le token d'invitatio
 
 ## 7. Architecture serveur
 
-Le serveur est un relais de synchronisation **zero-knowledge**. Il stocke et relaie des données chiffrées sans pouvoir les interpréter.
+Le serveur est un **relais éphémère zero-knowledge**. Il ne stocke aucune donnée de manière persistante.
+
+### 7.1 Modèle éphémère
+
+Le serveur ne conserve **rien** de façon permanente. Son rôle se limite à :
+1. Recevoir les deltas chiffrés envoyés par un device.
+2. Les mettre à disposition des autres devices participants.
+3. **Supprimer chaque delta dès qu'il a été récupéré** par tous les devices concernés.
+
+Le serveur n'a donc jamais de vision complète d'un document. Il ne manipule que des deltas chiffrés transitoires. Si le serveur est éteint ou réinitialisé, seuls les deltas en transit non encore récupérés sont perdus — les documents eux-mêmes vivent intégralement sur les devices.
+
+### 7.2 Déploiement
 
 - **Instance par défaut** : une instance publique est proposée pour un usage immédiat.
 - **Auto-hébergement** : les utilisateurs avancés peuvent déployer leur propre instance de serveur.
 
 Le client peut se connecter à **n'importe quel serveur** (adresse configurable). Un même device peut avoir des documents répartis sur **différents serveurs**. Cependant, un document donné ne vit que sur **un seul serveur** : tous les devices participant à ce document passent par le même serveur.
-
-Il n'y a pas de limite de taille sur les documents. Les échanges se font par deltas chiffrés, qui sont petits par nature.
