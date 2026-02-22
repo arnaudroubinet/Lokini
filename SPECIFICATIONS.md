@@ -32,13 +32,25 @@ Le nombre maximum de devices par document est **configurable** (défaut : **40**
 
 Il n'y a pas de compte utilisateur. L'identité d'un device est **propre à chaque document** : un device génère un **couple clé privée/publique par document** auquel il participe. Un même appareil physique a donc autant d'identités que de documents rejoints.
 
-Il n'y a pas d'identité globale du device.
+Il n'y a pas d'identité globale du device au sens cryptographique.
 
-### 4.3 Rejoindre un document
+#### Pseudonyme
+
+L'utilisateur définit un **pseudonyme global** sur son device, utilisé par défaut dans tous les documents. Ce pseudo peut être **surchargé document par document** (par exemple, un surnom différent dans un document partagé en famille vs. au travail).
+
+Le pseudonyme est transmis **chiffré** aux autres participants du document. Le serveur ne le connaît pas.
+
+### 4.3 Création d'un document
+
+Lors de la création d'un document, l'utilisateur **choisit le serveur** sur lequel le document sera hébergé. L'application propose le serveur par défaut (instance publique) mais permet de sélectionner un autre serveur parmi ceux configurés.
+
+Une fois créé, le document est lié à ce serveur : il ne peut pas être migré vers un autre serveur.
+
+### 4.4 Rejoindre un document
 
 Un device rejoint un document via un **lien ou QR code** contenant un **token unique et à usage unique** (one-shot). Ce token déclenche l'échange de clés de chiffrement entre les devices, permettant au nouveau device de déchiffrer et participer au document.
 
-### 4.4 Quitter un document
+### 4.5 Quitter un document
 
 Un device peut **quitter** un document. Cela :
 - Signale le départ aux autres devices participants.
@@ -47,13 +59,13 @@ Un device peut **quitter** un document. Cela :
 
 Il n'y a pas de mécanisme d'exclusion. Un participant ne peut pas retirer un autre device d'un document.
 
-### 4.5 Fork
+### 4.6 Fork
 
 Un participant peut **forker** un document : il crée une copie indépendante du document et choisit quels autres devices l'accompagnent dans ce fork. Le document original continue d'exister indépendamment.
 
 Les devices choisis sont notifiés du fork **via le document original** (le canal de communication existant). Ils n'ont pas besoin d'un nouveau lien d'invitation.
 
-### 4.6 Synchronisation
+### 4.7 Synchronisation
 
 Le modèle de synchronisation est pull/push, avec la possibilité de se rapprocher du temps réel (ex: notifications push, polling fréquent, ou WebSocket).
 
@@ -67,11 +79,11 @@ Un device hors ligne travaille en local. Au retour de la connexion :
 
 Cet ordre est impératif : toujours pull avant push.
 
-### 4.7 Gestion des conflits
+### 4.8 Gestion des conflits
 
 En cas de modifications concurrentes par plusieurs devices, le système effectue une **fusion automatique**.
 
-### 4.8 Plateformes cibles
+### 4.9 Plateformes cibles
 
 Toutes les plateformes : iOS, Android, desktop (macOS, Windows, Linux) et web.
 
@@ -83,7 +95,7 @@ L'ajout de nouveaux types de documents se fait par le développeur, dans les rel
 
 ### 5.1 Types initiaux
 
-- **Note** : texte riche (formatage : gras, italique, titres, listes, etc.).
+- **Note** : texte riche avec une approche **mobile-first**. Formatage supporté : gras, italique, titres, listes à puces/numérotées, liens, etc. L'éditeur privilégie une expérience tactile fluide tout en offrant le maximum de possibilités de mise en forme compatibles avec les petits écrans.
 - **To-do** : liste d'items. Chaque item possède :
   - Un libellé.
   - Un état : en attente, en cours, fini.
@@ -93,13 +105,31 @@ L'ajout de nouveaux types de documents se fait par le développeur, dans les rel
   - Une quantité.
   - Un état : acheté ou non.
 
-## 6. Architecture serveur
+## 6. Chiffrement et zero-knowledge
 
-Le serveur est un relais de synchronisation. Il ne peut pas lire le contenu des documents (chiffrement de bout en bout).
+### 6.1 Principe général
+
+Le serveur est **zero-knowledge** : il ne connaît aucune information sur le contenu des documents. Ni le texte, ni les métadonnées (titre, type de document, pseudonymes des participants) ne sont lisibles par le serveur. Le serveur manipule uniquement des blobs chiffrés opaques.
+
+### 6.2 Chiffrement au repos
+
+Chaque device chiffre le document stocké en local avec **sa propre clé** (dérivée de sa clé privée liée au document). Le document est donc chiffré au repos sur chaque device, indépendamment des autres participants.
+
+### 6.3 Chiffrement en transit
+
+Les échanges entre devices transitent par le serveur sous forme de **deltas chiffrés**. Seuls les deltas de modification sont transmis, jamais le document complet. Chaque delta est chiffré **avant** d'être envoyé au serveur. Le serveur relaie ces deltas sans pouvoir les déchiffrer.
+
+### 6.4 Échange de clés
+
+Lors de l'arrivée d'un nouveau device sur un document (via le token d'invitation), un échange de clés est effectué entre les devices participants. Cet échange permet au nouveau device d'obtenir les clés nécessaires pour déchiffrer les deltas et participer au document.
+
+## 7. Architecture serveur
+
+Le serveur est un relais de synchronisation **zero-knowledge**. Il stocke et relaie des données chiffrées sans pouvoir les interpréter.
 
 - **Instance par défaut** : une instance publique est proposée pour un usage immédiat.
 - **Auto-hébergement** : les utilisateurs avancés peuvent déployer leur propre instance de serveur.
 
 Le client peut se connecter à **n'importe quel serveur** (adresse configurable). Un même device peut avoir des documents répartis sur **différents serveurs**. Cependant, un document donné ne vit que sur **un seul serveur** : tous les devices participant à ce document passent par le même serveur.
 
-Il n'y a pas de limite de taille sur les documents. Les échanges se font par deltas, qui sont petits par nature.
+Il n'y a pas de limite de taille sur les documents. Les échanges se font par deltas chiffrés, qui sont petits par nature.
