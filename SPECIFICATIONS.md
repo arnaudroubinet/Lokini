@@ -107,9 +107,15 @@ Le serveur ne sait pas que ces devices appartiennent au même utilisateur. Il vo
 
 #### Synchronisation automatique
 
-Lorsqu'un device lié **crée ou rejoint** un document, il en informe automatiquement tous ses devices liés via le canal de synchronisation. Les devices liés rejoignent alors le document automatiquement (échange de clés + transfert du document complet).
+Lorsqu'un device lié **crée ou rejoint** un document, il en informe automatiquement tous ses devices liés via le canal de synchronisation. Le canal transmet uniquement l'**équivalent du lien d'invitation** (le token de jonction). **Aucune clé n'est échangée via ce canal.** Les devices liés rejoignent ensuite le document via le flux normal de jonction (voir §4.4 : échange de clés + transfert du document complet).
 
 Chaque device lié génère ses **propres clés** pour chaque document (le modèle d'identité par document est préservé). Les autres participants du document voient les devices liés comme des participants distincts.
+
+#### Heartbeat et désactivation
+
+Le canal de synchronisation transmet un **heartbeat** : chaque device lié envoie un signal de présence (au maximum **un par jour**). Ce mécanisme permet de détecter les devices inactifs.
+
+Lorsqu'un device n'a pas envoyé de heartbeat depuis un certain temps, les autres devices liés **proposent à l'utilisateur** de désactiver ce device. Si l'inactivité se prolonge au-delà d'un seuil configurable, la désactivation est **forcée automatiquement** : le device est retiré du canal de synchronisation (déliaison).
 
 #### Retrait d'un device lié
 
