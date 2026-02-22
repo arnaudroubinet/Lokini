@@ -26,6 +26,8 @@ Il n'y a pas de distinction entre synchronisation multi-device et partage multi-
 
 Un document est partagé entre un ensemble de devices. Chaque device participant peut modifier le document. Les modifications sont bidirectionnelles.
 
+Le nombre maximum de devices par document est **configurable** (défaut : **40**).
+
 ### 4.2 Identité
 
 Il n'y a pas de compte utilisateur. L'identité est basée sur le device. Chaque device possède sa propre identité.
@@ -46,6 +48,8 @@ Il n'y a pas de mécanisme d'exclusion. Un participant ne peut pas retirer un au
 ### 4.5 Fork
 
 Un participant peut **forker** un document : il crée une copie indépendante du document et choisit quels autres devices l'accompagnent dans ce fork. Le document original continue d'exister indépendamment.
+
+Les devices choisis sont notifiés du fork **via le document original** (le canal de communication existant). Ils n'ont pas besoin d'un nouveau lien d'invitation.
 
 ### 4.6 Synchronisation
 
@@ -68,3 +72,14 @@ En cas de modifications concurrentes par plusieurs devices, le système effectue
 ### 4.8 Plateformes cibles
 
 Toutes les plateformes : iOS, Android, desktop (macOS, Windows, Linux) et web.
+
+## 5. Structure des documents
+
+Chaque document a un **type** qui détermine sa structure. Le type définit les champs, les interactions possibles et le rendu visuel. Le système de types est extensible.
+
+## 6. Architecture serveur
+
+Le serveur est un relais de synchronisation. Il ne peut pas lire le contenu des documents (chiffrement de bout en bout).
+
+- **Instance par défaut** : une instance publique est proposée pour un usage immédiat.
+- **Auto-hébergement** : les utilisateurs avancés peuvent déployer leur propre instance de serveur.
