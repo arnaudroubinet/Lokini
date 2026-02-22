@@ -156,7 +156,7 @@ Phase 11: Multi-device ────────┴──────────
 - **T059** Linking protocol (core) → T005, T006, T009
 - **T060** Sync channel management → T059, T015
 - **T061** Heartbeat & deactivation → T060
-- **T062** Compromised device signaling → T060, T009
+- **T062** Compromised device signaling → T060, T009, T069
 - **T063** Server linking support → T022, T034
 - **T064** Web UI linking → T059, T060, T053
 
