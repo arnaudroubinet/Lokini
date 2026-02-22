@@ -75,7 +75,17 @@ Toutes les plateformes : iOS, Android, desktop (macOS, Windows, Linux) et web.
 
 ## 5. Structure des documents
 
-Chaque document a un **type** qui détermine sa structure. Le type définit les champs, les interactions possibles et le rendu visuel. Le système de types est extensible.
+Chaque document a un **type** qui détermine sa structure. Le type définit les champs, les interactions possibles et le rendu visuel.
+
+L'ajout de nouveaux types de documents se fait par le développeur, dans les releases de l'application. Les utilisateurs ne définissent pas leurs propres types.
+
+### 5.1 Types initiaux
+
+- **Note** : texte libre.
+- **To-do** : liste d'items, chaque item possède un état coché/décoché.
+- **Liste de courses** : *(structure à définir)*.
+
+*(Structure détaillée de chaque type à compléter)*
 
 ## 6. Architecture serveur
 
@@ -83,3 +93,7 @@ Le serveur est un relais de synchronisation. Il ne peut pas lire le contenu des 
 
 - **Instance par défaut** : une instance publique est proposée pour un usage immédiat.
 - **Auto-hébergement** : les utilisateurs avancés peuvent déployer leur propre instance de serveur.
+
+Le client peut se connecter à **n'importe quel serveur** (adresse configurable). Cependant, un document donné ne vit que sur **un seul serveur** : tous les devices participant à ce document passent par le même serveur.
+
+Il n'y a pas de limite de taille sur les documents. Les échanges se font par deltas, qui sont petits par nature.
