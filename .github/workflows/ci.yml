@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # === TypeScript (packages/core + packages/web) ===
+  typescript:
+    name: TypeScript — Lint, Test, Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Build core
+        run: pnpm build:core
+
+      - name: Test core
+        run: pnpm test:core
+
+      - name: Build web
+        run: pnpm build:web
+
+      - name: Test web
+        run: pnpm test:web
+
+  # === Java (server/) ===
+  java:
+    name: Java — Test, Build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: lokini_test
+          POSTGRES_USER: lokini
+          POSTGRES_PASSWORD: lokini
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - name: Build & Test
+        working-directory: server
+        run: mvn verify -B
+        env:
+          QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://localhost:5432/lokini_test
+          QUARKUS_DATASOURCE_USERNAME: lokini
+          QUARKUS_DATASOURCE_PASSWORD: lokini
