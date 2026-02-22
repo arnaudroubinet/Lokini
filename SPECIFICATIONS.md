@@ -17,3 +17,18 @@ Partager des informations textuelles entre personnes de manière simple et priv�
 ## 3. Utilisateurs cibles
 
 Tout le monde. L'application doit être accessible sans compétence technique particulière.
+
+## 4. Fonctionnement général
+
+### 4.1 Deux usages complémentaires
+
+- **Synchronisation personnelle** : un utilisateur synchronise ses propres documents entre ses différents appareils (ex: téléphone ↔ PC).
+- **Partage entre personnes** : un utilisateur partage un document avec une autre personne. Le partage est bidirectionnel — les deux parties peuvent modifier le document.
+
+### 4.2 Identité
+
+Il n'y a pas de compte utilisateur. L'identité est basée sur le device. Chaque device possède sa propre identité.
+
+### 4.3 Synchronisation
+
+Le modèle de synchronisation est pull/push, avec la possibilité de se rapprocher du temps réel (ex: notifications push, polling fréquent, ou WebSocket).
