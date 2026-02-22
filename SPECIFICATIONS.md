@@ -34,14 +34,37 @@ Il n'y a pas de compte utilisateur. L'identité est basée sur le device. Chaque
 
 Un device rejoint un document via un **lien ou QR code** contenant un **token unique et à usage unique** (one-shot). Ce token déclenche l'échange de clés de chiffrement entre les devices, permettant au nouveau device de déchiffrer et participer au document.
 
-### 4.4 Synchronisation
+### 4.4 Quitter un document
+
+Un device peut **quitter** un document. Cela :
+- Signale le départ aux autres devices participants.
+- **Archive** le document en local (dernière version connue).
+- L'utilisateur peut ensuite choisir de supprimer son archive locale.
+
+Il n'y a pas de mécanisme d'exclusion. Un participant ne peut pas retirer un autre device d'un document.
+
+### 4.5 Fork
+
+Un participant peut **forker** un document : il crée une copie indépendante du document et choisit quels autres devices l'accompagnent dans ce fork. Le document original continue d'exister indépendamment.
+
+### 4.6 Synchronisation
 
 Le modèle de synchronisation est pull/push, avec la possibilité de se rapprocher du temps réel (ex: notifications push, polling fréquent, ou WebSocket).
 
-### 4.5 Gestion des conflits
+La synchronisation utilise des **deltas** (différences) pour les échanges. En local, seul le **dernier état** du document est conservé (pas d'historique des versions).
+
+#### Mode offline
+
+Un device hors ligne travaille en local. Au retour de la connexion :
+1. Le device **récupère d'abord l'état distant** (pull).
+2. Puis il **pousse ses modifications** (push).
+
+Cet ordre est impératif : toujours pull avant push.
+
+### 4.7 Gestion des conflits
 
 En cas de modifications concurrentes par plusieurs devices, le système effectue une **fusion automatique**.
 
-### 4.6 Plateformes cibles
+### 4.8 Plateformes cibles
 
 Toutes les plateformes : iOS, Android, desktop (macOS, Windows, Linux) et web.
