@@ -419,39 +419,154 @@ Le système gère les cas d'erreur suivants de manière explicite :
 - **Impossibilité de déchiffrer un delta** : si un device ne peut pas déchiffrer un delta (chain key désynchronisée), il demande une **retransmission des chain keys** aux autres participants. En dernier recours, une resynchronisation complète est déclenchée.
 - **Clé locale corrompue** : si le chiffrement au repos échoue (clé locale perdue ou corrompue), le document local est marqué comme irrécupérable. L'utilisateur peut demander une resynchronisation complète depuis un autre device.
 
-## 8. Choix techniques recommandés
+## 8. Architecture logicielle
+
+### 8.1 Organisation du code — Monorepo
+
+Le projet est organisé en **monorepo** contenant l'ensemble des composants :
+
+```
+lokini/
+├── packages/
+│   ├── core/           # @lokini/core — logique métier partagée
+│   ├── web/            # Application React (web)
+│   ├── mobile/         # Application React Native (iOS + Android)
+│   └── desktop/        # Wrapper Tauri (hors MVP)
+├── server/             # Serveur Java Quarkus
+└── ...
+```
+
+Ce choix permet :
+- Le partage de types et interfaces entre client et serveur.
+- Des releases coordonnées.
+- Une gestion simplifiée des dépendances.
+
+### 8.2 Package partagé — @lokini/core
+
+La logique métier est isolée dans un **package TypeScript indépendant** (`@lokini/core`), utilisé par le client web et le client mobile. Ce package contient :
+
+- **CRDT** : moteur CRDT (opérations, merge, compaction).
+- **Crypto** : chiffrement/déchiffrement, gestion des chain keys, ratchet symétrique, signatures.
+- **Sync** : logique de synchronisation (pull/push, gestion des deltas, mode offline).
+- **Modèles** : types de documents, structures de données partagées.
+
+`@lokini/core` n'a **aucune dépendance** sur l'UI (React) ni sur la plateforme (React Native, browser). Il est testable de manière isolée.
+
+### 8.3 Architecture client — Clean Architecture
+
+Le client suit une **Clean Architecture** en couches, avec des responsabilités clairement séparées :
+
+```
+┌──────────────────────────────────────┐
+│           Présentation               │  React / React Native
+│   (composants UI, écrans, thème)     │  Dépend de : Application
+├──────────────────────────────────────┤
+│           Application                │  Use cases, state management
+│   (cas d'usage, orchestration)       │  Dépend de : Domaine
+├──────────────────────────────────────┤
+│           Domaine                    │  @lokini/core
+│   (CRDT, crypto, sync, modèles)     │  Aucune dépendance externe
+├──────────────────────────────────────┤
+│           Infrastructure             │  Réseau (REST, WebSocket),
+│   (adapters, stockage, réseau)       │  stockage local, push notifications
+└──────────────────────────────────────┘
+```
+
+**Règle de dépendance** : chaque couche ne dépend que de la couche en dessous. La couche Domaine (`@lokini/core`) est au centre et ne dépend de rien.
+
+- **Présentation** : composants React/React Native, navigation, gestion du thème, i18n. Consomme les use cases de la couche Application.
+- **Application** : orchestration des cas d'usage (créer un document, rejoindre, synchroniser). Gère l'état applicatif (store). Fait le lien entre le domaine et l'infrastructure.
+- **Domaine** : `@lokini/core`. Contient la logique métier pure (CRDT, crypto, sync). Entièrement testable sans UI ni réseau.
+- **Infrastructure** : adapters concrets pour le réseau (client REST, WebSocket), le stockage local (IndexedDB, SQLite), les notifications push. Implémente les interfaces définies par la couche Application.
+
+### 8.4 Architecture serveur — Hexagonale (Ports & Adapters)
+
+Le serveur Java Quarkus suit une **architecture hexagonale** (ports & adapters) :
+
+```
+                    ┌─────────────────────┐
+   HTTP REST ──────►│                     │◄────── Push (FCM/APNs)
+                    │                     │
+   WebSocket ──────►│    Domaine métier   │◄────── PostgreSQL
+                    │    (ports/usecases) │
+   OpenTelemetry ──►│                     │◄────── Pub/Sub (cluster)
+                    └─────────────────────┘
+```
+
+- **Domaine (centre)** : logique métier du serveur — gestion des deltas, routage vers les devices, rétention bornée, rate limiting. Définit les **ports** (interfaces) pour communiquer avec l'extérieur.
+- **Ports entrants (driving)** : API REST (Quarkus RESTEasy), WebSocket (Quarkus WebSockets).
+- **Ports sortants (driven)** : PostgreSQL (Quarkus Hibernate/Panache), push notifications (FCM/APNs), pub/sub inter-instances (pour le cluster).
+- **Adapters** : implémentations concrètes des ports. Chaque adapter est interchangeable (ex : remplacer PostgreSQL par un autre stockage sans toucher au domaine).
+
+Le domaine métier du serveur est **léger** : le serveur ne fait que relayer des blobs chiffrés. Il n'a aucune connaissance du contenu des documents.
+
+### 8.5 Stratégie de tests
+
+Trois niveaux de tests avec des seuils de couverture différenciés :
+
+#### Tests unitaires
+- **Cible** : logique pure — `@lokini/core` (CRDT, crypto, sync), domaine serveur.
+- **Seuil** : **90% de couverture** sur le code critique (CRDT, crypto, sync).
+- **Caractéristiques** : rapides, sans I/O, exécutés à chaque commit.
+
+#### Tests d'intégration
+- **Cible** : interaction entre couches — adapters réseau, stockage local, API REST, WebSocket, PostgreSQL.
+- **Seuil** : **70% de couverture** sur le reste du code.
+- **Caractéristiques** : testent les adapters avec de vraies dépendances (base de données de test, serveur local).
+
+#### Tests end-to-end (E2E)
+- **Cible** : scénarios utilisateur complets — création de document, jonction, synchronisation entre deux clients, mode offline, etc.
+- **Caractéristiques** : simulent des interactions réelles entre un client et un serveur. Automatisés mais plus lents.
+
+### 8.6 CI/CD — GitHub Actions
+
+Le pipeline d'intégration continue et de déploiement est géré via **GitHub Actions** :
+
+#### Intégration continue (à chaque push / PR)
+1. **Lint** : vérification du style de code (ESLint pour TS, Checkstyle/SpotBugs pour Java).
+2. **Tests unitaires** : exécution de tous les tests unitaires avec vérification des seuils de couverture.
+3. **Tests d'intégration** : exécution avec services auxiliaires (PostgreSQL via container).
+4. **Build** : compilation du client (web) et du serveur (Quarkus).
+5. **Tests E2E** : exécution des scénarios end-to-end.
+
+#### Déploiement (sur tag / release)
+- **Client web** : build statique déployable.
+- **Serveur** : construction de l'image Docker, publication sur un registre de conteneurs.
+- **Client mobile** : build via les pipelines spécifiques (Fastlane ou EAS Build) — hors MVP.
+
+## 9. Choix techniques recommandés
 
 Cette section décrit les choix techniques envisagés. Elle est séparée de la spécification fonctionnelle et peut évoluer indépendamment.
 
-### 8.1 Client
+### 9.1 Client
 
 - **Mobile** : React Native (iOS + Android)
 - **Web / Desktop** : React (web) — desktop via **Tauri** (wrapper léger utilisant la WebView native, binaire compact et performant)
-- **Logique partagée** : la logique métier (CRDT, chiffrement, synchronisation) est implémentée en JavaScript/TypeScript, partagée entre React Native et React Web.
+- **Logique partagée** : `@lokini/core` (TypeScript), partagée entre React Native et React Web.
 
-### 8.2 Serveur
+### 9.2 Serveur
 
 - **Langage** : Java
 - **Framework** : Quarkus
 - **Base de données** : PostgreSQL (stockage des deltas chiffrés et métadonnées opaques)
 
-### 8.3 Observabilité
+### 9.3 Observabilité
 
 - **Télémétrie** : OpenTelemetry (traces, métriques, logs structurés) côté serveur et client.
 - **Export** : collecteur OpenTelemetry standard (compatible Jaeger, Prometheus, Grafana, etc.).
 
-### 8.4 Bibliothèques clés
+### 9.4 Bibliothèques clés
 
 *(À compléter — choix de bibliothèque CRDT, bibliothèque crypto, etc.)*
 
-## 9. Licence
+## 10. Licence
 
 Le projet Lokini (client et serveur) est distribué sous licence **AGPL** (GNU Affero General Public License). Ce choix garantit que :
 - Le code source reste ouvert et accessible.
 - Toute modification ou déploiement (y compris en tant que service réseau) doit partager le code source modifié.
 - Les utilisateurs auto-hébergeant le serveur bénéficient des mêmes droits que les utilisateurs de l'instance publique.
 
-## 10. Périmètre MVP (Minimum Viable Product)
+## 11. Périmètre MVP (Minimum Viable Product)
 
 Le MVP se concentre sur un périmètre restreint pour valider les fondamentaux de l'application :
 
@@ -474,11 +589,11 @@ Le MVP se concentre sur un périmètre restreint pour valider les fondamentaux d
 - Export/backup chiffré.
 - Vérification d'identité par empreinte.
 
-## 11. Conformité RGPD et protection des données
+## 12. Conformité RGPD et protection des données
 
 L'architecture de Lokini est conçue **privacy by design**, ce qui simplifie significativement la conformité RGPD.
 
-### 11.1 Minimisation des données
+### 12.1 Minimisation des données
 
 Le serveur ne stocke que le **strict minimum** :
 - Couples {device_id, document_id} (identifiants opaques).
@@ -487,19 +602,19 @@ Le serveur ne stocke que le **strict minimum** :
 
 Le serveur n'a accès à **aucune donnée personnelle** : pas de noms, pas d'emails, pas d'adresses IP persistantes, pas de contenu de documents.
 
-### 11.2 Droit à l'effacement
+### 12.2 Droit à l'effacement
 
 - **Côté client** : l'utilisateur peut supprimer ses données locales à tout moment (suppression de documents, désinstallation de l'application).
 - **Côté serveur** : les données sont supprimées automatiquement par le mécanisme de rétention bornée (§7.1). Un device quittant un document (§4.5) déclenche la suppression de ses métadonnées associées sur le serveur.
 
-### 11.3 Portabilité des données
+### 12.3 Portabilité des données
 
 L'export chiffré (§7.6) permet à l'utilisateur de récupérer ses données dans un format réimportable.
 
-### 11.4 Pas de profilage
+### 12.4 Pas de profilage
 
 L'architecture zero-knowledge rend le profilage techniquement impossible côté serveur. La télémétrie OpenTelemetry est désactivable (opt-out) et ne contient aucune donnée personnelle.
 
-### 11.5 Base légale
+### 12.5 Base légale
 
 Le traitement des données côté serveur repose sur l'**intérêt légitime** (relais de synchronisation nécessaire au fonctionnement du service). Aucun consentement n'est requis pour le traitement côté serveur puisqu'aucune donnée personnelle n'y est accessible.
