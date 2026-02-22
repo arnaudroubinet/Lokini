@@ -32,7 +32,7 @@ Le nombre maximum de devices par document est **configurable** (défaut : **40**
 
 Il n'y a pas de compte utilisateur. L'identité d'un device est **propre à chaque document** : un device génère un **couple clé privée/publique par document** auquel il participe. Un même appareil physique a donc autant d'identités que de documents rejoints.
 
-Il n'y a pas d'identité globale du device au sens cryptographique.
+Il n'y a pas d'identité globale du device au sens cryptographique. Cependant, un utilisateur peut **lier plusieurs devices** entre eux pour synchroniser ses documents (voir §4.10).
 
 #### Pseudonyme
 
@@ -61,7 +61,7 @@ Un device peut **quitter** un document. Cela :
 - **Archive** le document en local (dernière version connue).
 - L'utilisateur peut ensuite choisir de supprimer son archive locale.
 
-Il n'y a pas de mécanisme d'exclusion. Un participant ne peut pas retirer un autre device d'un document.
+Il n'y a pas de mécanisme d'exclusion d'un tiers. Un participant ne peut pas retirer un autre device d'un document. En revanche, un utilisateur peut retirer ses **propres devices liés** d'un document (voir §4.10).
 
 ### 4.6 Fork
 
@@ -94,6 +94,37 @@ En cas de modifications concurrentes par plusieurs devices, le système effectue
 ### 4.9 Plateformes cibles
 
 Toutes les plateformes : iOS, Android, desktop (macOS, Windows, Linux) et web.
+
+### 4.10 Liaison multi-device (devices d'un même utilisateur)
+
+Un utilisateur possédant plusieurs devices (ex: téléphone + tablette + ordinateur) peut les **lier** entre eux pour synchroniser automatiquement ses documents.
+
+#### Appairage
+
+L'appairage de deux devices se fait via un **lien ou QR code**, de manière identique à la jonction d'un document. L'appairage crée un **canal de synchronisation privé** entre les devices liés : un document système chiffré, invisible pour l'utilisateur, partagé uniquement entre ses devices. Ce canal est hébergé sur un serveur choisi par l'utilisateur (comme tout document).
+
+Le serveur ne sait pas que ces devices appartiennent au même utilisateur. Il voit simplement des devices partageant un document (le canal de sync).
+
+#### Synchronisation automatique
+
+Lorsqu'un device lié **crée ou rejoint** un document, il en informe automatiquement tous ses devices liés via le canal de synchronisation. Les devices liés rejoignent alors le document automatiquement (échange de clés + transfert du document complet).
+
+Chaque device lié génère ses **propres clés** pour chaque document (le modèle d'identité par document est préservé). Les autres participants du document voient les devices liés comme des participants distincts.
+
+#### Retrait d'un device lié
+
+Un utilisateur peut **retirer un de ses devices liés** d'un document spécifique. Puisqu'il contrôle le device, il peut :
+- Supprimer les clés et les données du document sur ce device.
+- Signaler le départ aux autres participants (comme un départ classique, voir §4.5).
+
+Ce retrait ne concerne que le document choisi. Le device reste lié pour tous les autres documents.
+
+#### Déliaison
+
+Un utilisateur peut **délier** un device. Cela :
+- Supprime le device du canal de synchronisation.
+- Ne retire **pas** le device des documents auxquels il participe déjà (il continue d'y participer de manière indépendante).
+- Les futurs documents ne seront plus synchronisés vers ce device.
 
 ## 5. Structure des documents
 
