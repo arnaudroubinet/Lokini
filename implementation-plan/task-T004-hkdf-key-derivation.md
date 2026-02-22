@@ -1,6 +1,6 @@
 # T004 — HKDF-SHA256 key derivation
 
-## Statut : `pending`
+## Statut : `done`
 
 ## Description
 
