@@ -1,0 +1,30 @@
+{
+  "name": "lokini",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @lokini/web dev",
+    "build": "pnpm -r build",
+    "build:core": "pnpm --filter @lokini/core build",
+    "build:web": "pnpm --filter @lokini/web build",
+    "test": "pnpm -r test",
+    "test:core": "pnpm --filter @lokini/core test",
+    "test:web": "pnpm --filter @lokini/web test",
+    "lint": "eslint packages/",
+    "lint:fix": "eslint packages/ --fix",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,json,css}\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx,json,css}\"",
+    "clean": "pnpm -r exec rm -rf dist node_modules"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
