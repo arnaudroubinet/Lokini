@@ -46,7 +46,7 @@ lokini/
 |-----------|-------------|
 | Client web | React 19, Vite 6, TypeScript, ProseMirror |
 | Logique partagée | Automerge (CRDT), libsodium (crypto) |
-| Serveur | Java 25, Quarkus 3.32, PostgreSQL 17 |
+| Serveur | Java 25, Quarkus 3.31, PostgreSQL 17 |
 | Migrations DB | Liquibase |
 | Tests | Vitest (TS), JUnit 5 + ArchUnit (Java) |
 | CI/CD | GitHub Actions |
