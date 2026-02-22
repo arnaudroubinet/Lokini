@@ -1,6 +1,15 @@
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "libsodium-wrappers-sumo": path.resolve(
+        __dirname,
+        "node_modules/libsodium-wrappers-sumo/dist/modules-sumo/libsodium-wrappers.js",
+      ),
+    },
+  },
   test: {
     globals: true,
     passWithNoTests: true,
