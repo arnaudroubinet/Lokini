@@ -73,9 +73,11 @@ Les devices choisis sont notifiés du fork **via le document original** (le cana
 
 ### 4.7 Synchronisation
 
-Le modèle de synchronisation est pull/push, avec la possibilité de se rapprocher du temps réel (ex: notifications push, polling fréquent, ou WebSocket).
-
 La synchronisation utilise des **deltas** (différences) pour les échanges. En local, seul le **dernier état** du document est conservé (pas d'historique des versions).
+
+#### Notifications push
+
+Le serveur notifie les devices en **push** lorsqu'un delta les attend. Le serveur stocke les tokens de notification push (FCM/APNs) des devices pour pouvoir les avertir. C'est la seule métadonnée device persistante côté serveur.
 
 #### Mode offline
 
@@ -131,7 +133,7 @@ Lors de l'arrivée d'un nouveau device sur un document (via le token d'invitatio
 1. Un **échange de clés** est effectué entre les devices participants, permettant au nouveau device d'obtenir les clés nécessaires pour déchiffrer les deltas.
 2. Un device existant lui envoie le **document complet chiffré** (état actuel), relayé par le serveur.
 
-Ce même mécanisme est utilisé lors de la **resynchronisation** d'un device déconnecté (voir §7.2).
+Lors de la **resynchronisation** d'un device déconnecté (voir §7.2), seule l'étape 2 est nécessaire : le device conserve ses clés et reçoit uniquement le document complet à jour.
 
 ## 7. Architecture serveur
 
@@ -139,7 +141,7 @@ Le serveur est un **relais zero-knowledge à rétention bornée**. Il conserve t
 
 ### 7.1 Rétention bornée des deltas
 
-Le serveur garde les deltas chiffrés **en mémoire** dans les limites suivantes :
+Le serveur garde les deltas chiffrés dans **PostgreSQL** dans les limites suivantes :
 - **Durée maximale** (X) : un delta non récupéré est supprimé après un temps configurable.
 - **Quantité maximale** (Y) : un nombre maximum de deltas en attente par device, au-delà duquel les plus anciens sont supprimés.
 
@@ -154,9 +156,9 @@ Lorsqu'une des limites de rétention est atteinte pour un device (il n'a pas ré
 2. Notifie le **premier device actif** (autre que le device concerné) de la déconnexion.
 3. Ce device actif **propage l'information de déconnexion** à tous les autres participants.
 
-Le device déconnecté n'est pas exclu du document. À sa reconnexion, il devra effectuer une **resynchronisation complète** auprès d'un device actif (même mécanisme que lors de la phase de jonction initiale).
+Le device déconnecté n'est pas exclu du document. Il **conserve ses clés** cryptographiques. À sa reconnexion, il demande une **resynchronisation** : un device actif lui envoie le document complet chiffré (état actuel). Aucun nouvel échange de clés n'est nécessaire.
 
-### 7.2 Déploiement
+### 7.3 Déploiement
 
 - **Instance par défaut** : une instance publique est proposée pour un usage immédiat.
 - **Auto-hébergement** : les utilisateurs avancés peuvent déployer leur propre instance de serveur.
