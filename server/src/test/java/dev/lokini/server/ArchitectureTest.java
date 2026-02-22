@@ -15,6 +15,9 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 /**
  * Architecture tests for the Lokini server.
  * Validates that the hexagonal architecture (ports & adapters) rules are respected.
+ *
+ * All rules use allowEmptyShould(true) so they pass when packages have no classes yet
+ * (project bootstrap phase). They will enforce constraints as soon as classes are added.
  */
 class ArchitectureTest {
 
@@ -46,7 +49,8 @@ class ArchitectureTest {
         void domainMustNotDependOnAdapters() {
             ArchRule rule = noClasses()
                     .that().resideInAPackage(DOMAIN_PACKAGE)
-                    .should().dependOnClassesThat().resideInAPackage(ADAPTER_PACKAGE);
+                    .should().dependOnClassesThat().resideInAPackage(ADAPTER_PACKAGE)
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -56,7 +60,8 @@ class ArchitectureTest {
         void domainMustNotDependOnQuarkus() {
             ArchRule rule = noClasses()
                     .that().resideInAPackage(DOMAIN_PACKAGE)
-                    .should().dependOnClassesThat().resideInAPackage("io.quarkus..");
+                    .should().dependOnClassesThat().resideInAPackage("io.quarkus..")
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -66,7 +71,8 @@ class ArchitectureTest {
         void domainMustNotDependOnJakartaRest() {
             ArchRule rule = noClasses()
                     .that().resideInAPackage(DOMAIN_PACKAGE)
-                    .should().dependOnClassesThat().resideInAPackage("jakarta.ws.rs..");
+                    .should().dependOnClassesThat().resideInAPackage("jakarta.ws.rs..")
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -80,7 +86,8 @@ class ArchitectureTest {
                             "jakarta.persistence..",
                             "org.hibernate..",
                             "io.quarkus.hibernate.."
-                    );
+                    )
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -94,7 +101,8 @@ class ArchitectureTest {
                             DOMAIN_USECASE_PACKAGE,
                             DOMAIN_PORT_IN_PACKAGE,
                             DOMAIN_PORT_OUT_PACKAGE
-                    );
+                    )
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -109,7 +117,8 @@ class ArchitectureTest {
         void inboundMustNotDependOnOutbound() {
             ArchRule rule = noClasses()
                     .that().resideInAPackage(ADAPTER_IN_PACKAGE)
-                    .should().dependOnClassesThat().resideInAPackage(ADAPTER_OUT_PACKAGE);
+                    .should().dependOnClassesThat().resideInAPackage(ADAPTER_OUT_PACKAGE)
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -119,7 +128,8 @@ class ArchitectureTest {
         void outboundMustNotDependOnInbound() {
             ArchRule rule = noClasses()
                     .that().resideInAPackage(ADAPTER_OUT_PACKAGE)
-                    .should().dependOnClassesThat().resideInAPackage(ADAPTER_IN_PACKAGE);
+                    .should().dependOnClassesThat().resideInAPackage(ADAPTER_IN_PACKAGE)
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -129,7 +139,8 @@ class ArchitectureTest {
         void adaptersMustNotDependOnUsecases() {
             ArchRule rule = noClasses()
                     .that().resideInAPackage(ADAPTER_PACKAGE)
-                    .should().dependOnClassesThat().resideInAPackage(DOMAIN_USECASE_PACKAGE);
+                    .should().dependOnClassesThat().resideInAPackage(DOMAIN_USECASE_PACKAGE)
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -144,7 +155,8 @@ class ArchitectureTest {
         void drivingPortsMustBeInterfaces() {
             ArchRule rule = classes()
                     .that().resideInAPackage(DOMAIN_PORT_IN_PACKAGE)
-                    .should().beInterfaces();
+                    .should().beInterfaces()
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
@@ -154,7 +166,8 @@ class ArchitectureTest {
         void drivenPortsMustBeInterfaces() {
             ArchRule rule = classes()
                     .that().resideInAPackage(DOMAIN_PORT_OUT_PACKAGE)
-                    .should().beInterfaces();
+                    .should().beInterfaces()
+                    .allowEmptyShould(true);
 
             rule.check(classes);
         }
