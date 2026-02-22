@@ -80,7 +80,7 @@ dev.lokini.server.adapter.out.pubsub/
 - **Lint** : ESLint 9 (flat config) + Prettier
 
 ### Serveur (Java)
-- **Java 25**, **Quarkus 3.32**, **Maven**
+- **Java 25**, **Quarkus 3.31**, **Maven**
 - **DB** : PostgreSQL 17, migrations Liquibase
 - **Tests** : JUnit 5, Mockito, REST Assured, Testcontainers, ArchUnit
 - **Observabilité** : OpenTelemetry
