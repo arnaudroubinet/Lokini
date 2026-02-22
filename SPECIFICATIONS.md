@@ -48,7 +48,11 @@ Une fois créé, le document est lié à ce serveur : il ne peut pas être migr�
 
 ### 4.4 Rejoindre un document
 
-Un device rejoint un document via un **lien ou QR code** contenant un **token unique et à usage unique** (one-shot). Ce token déclenche l'échange de clés de chiffrement entre les devices, permettant au nouveau device de déchiffrer et participer au document.
+Un device rejoint un document via un **lien ou QR code** contenant un **token unique et à usage unique** (one-shot). Ce token déclenche la phase de jonction :
+1. **Échange de clés** : le nouveau device reçoit les clés nécessaires pour participer au document.
+2. **Transfert du document complet** : un device existant envoie l'état actuel complet du document (chiffré) au nouveau device, via le serveur.
+
+Le nouveau device dispose ainsi immédiatement du document dans son intégralité et peut commencer à recevoir les deltas suivants.
 
 ### 4.5 Quitter un document
 
@@ -121,22 +125,36 @@ Chaque device chiffre le document stocké en local avec **sa propre clé** (dér
 
 Les échanges entre devices transitent par le serveur sous forme de **deltas chiffrés**. Seuls les deltas de modification sont transmis, jamais le document complet. Chaque delta est chiffré **avant** d'être envoyé au serveur. Le serveur relaie ces deltas sans pouvoir les déchiffrer.
 
-### 6.4 Échange de clés
+### 6.4 Échange de clés et jonction
 
-Lors de l'arrivée d'un nouveau device sur un document (via le token d'invitation), un échange de clés est effectué entre les devices participants. Cet échange permet au nouveau device d'obtenir les clés nécessaires pour déchiffrer les deltas et participer au document.
+Lors de l'arrivée d'un nouveau device sur un document (via le token d'invitation) :
+1. Un **échange de clés** est effectué entre les devices participants, permettant au nouveau device d'obtenir les clés nécessaires pour déchiffrer les deltas.
+2. Un device existant lui envoie le **document complet chiffré** (état actuel), relayé par le serveur.
+
+Ce même mécanisme est utilisé lors de la **resynchronisation** d'un device déconnecté (voir §7.2).
 
 ## 7. Architecture serveur
 
-Le serveur est un **relais éphémère zero-knowledge**. Il ne stocke aucune donnée de manière persistante.
+Le serveur est un **relais zero-knowledge à rétention bornée**. Il conserve temporairement les deltas chiffrés le temps que les devices destinataires les récupèrent, puis les supprime.
 
-### 7.1 Modèle éphémère
+### 7.1 Rétention bornée des deltas
 
-Le serveur ne conserve **rien** de façon permanente. Son rôle se limite à :
-1. Recevoir les deltas chiffrés envoyés par un device.
-2. Les mettre à disposition des autres devices participants.
-3. **Supprimer chaque delta dès qu'il a été récupéré** par tous les devices concernés.
+Le serveur garde les deltas chiffrés **en mémoire** dans les limites suivantes :
+- **Durée maximale** (X) : un delta non récupéré est supprimé après un temps configurable.
+- **Quantité maximale** (Y) : un nombre maximum de deltas en attente par device, au-delà duquel les plus anciens sont supprimés.
 
-Le serveur n'a donc jamais de vision complète d'un document. Il ne manipule que des deltas chiffrés transitoires. Si le serveur est éteint ou réinitialisé, seuls les deltas en transit non encore récupérés sont perdus — les documents eux-mêmes vivent intégralement sur les devices.
+Dès qu'un delta a été récupéré par tous les devices concernés, il est immédiatement supprimé.
+
+Le serveur n'a donc jamais de vision complète d'un document. Il ne manipule que des deltas chiffrés transitoires. Les documents eux-mêmes vivent intégralement sur les devices.
+
+### 7.2 Déconnexion d'un device
+
+Lorsqu'une des limites de rétention est atteinte pour un device (il n'a pas récupéré ses deltas à temps, ou trop de deltas se sont accumulés), le serveur :
+1. Supprime les deltas en attente pour ce device.
+2. Notifie le **premier device actif** (autre que le device concerné) de la déconnexion.
+3. Ce device actif **propage l'information de déconnexion** à tous les autres participants.
+
+Le device déconnecté n'est pas exclu du document. À sa reconnexion, il devra effectuer une **resynchronisation complète** auprès d'un device actif (même mécanisme que lors de la phase de jonction initiale).
 
 ### 7.2 Déploiement
 
