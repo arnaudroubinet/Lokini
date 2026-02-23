@@ -1,6 +1,6 @@
 # T005 — X25519 key generation & exchange
 
-## Statut : `in_progress`
+## Statut : `done`
 
 ## Description
 
@@ -17,13 +17,13 @@ Implémenter la génération de paires de clés X25519 et l'échange Diffie-Hell
 
 ## Critères d'acceptation
 
-- [ ] Fonction `generateX25519KeyPair()` → `{ publicKey, privateKey }`
-- [ ] Fonction `computeSharedSecret(myPrivateKey, theirPublicKey)` → secret partagé
-- [ ] Le secret partagé est identique des deux côtés (propriété DH)
-- [ ] Les clés générées sont de la bonne taille (32 bytes)
-- [ ] Les clés privées ne sont jamais exposées involontairement (pas de sérialisation directe)
-- [ ] Utilisation de `crypto_box_keypair` / `crypto_scalarmult` de libsodium
-- [ ] Couverture ≥ 90%
+- [x] Fonction `generateX25519KeyPair()` → `{ publicKey, privateKey }`
+- [x] Fonction `computeSharedSecret(myPrivateKey, theirPublicKey)` → secret partagé
+- [x] Le secret partagé est identique des deux côtés (propriété DH)
+- [x] Les clés générées sont de la bonne taille (32 bytes)
+- [x] Les clés privées ne sont jamais exposées involontairement (pas de sérialisation directe)
+- [x] Utilisation de `crypto_box_keypair` / `crypto_scalarmult` de libsodium
+- [x] Couverture ≥ 90%
 
 ## Fichier cible
 
