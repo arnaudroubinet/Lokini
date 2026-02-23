@@ -8,6 +8,7 @@
  * @see SPECIFICATIONS.md §6.6 — Key exchange and joining
  */
 
+import sodium from "libsodium-wrappers-sumo";
 import type { X25519KeyPair } from "../models/device";
 
 // ---------------------------------------------------------------------------
@@ -31,7 +32,7 @@ export const SHARED_SECRET_LENGTH = 32;
 export type SharedSecret = Uint8Array & { readonly __brand: "SharedSecret" };
 
 // ---------------------------------------------------------------------------
-// Functions (signatures — implementation in step 4)
+// Functions
 // ---------------------------------------------------------------------------
 
 /**
@@ -42,8 +43,14 @@ export type SharedSecret = Uint8Array & { readonly __brand: "SharedSecret" };
  * @returns A new X25519 key pair with 32-byte public and private keys.
  */
 export async function generateX25519KeyPair(): Promise<X25519KeyPair> {
-  // Implementation in step 4
-  throw new Error("Not implemented");
+  await sodium.ready;
+
+  const { publicKey, privateKey } = sodium.crypto_box_keypair();
+
+  return {
+    publicKey: new Uint8Array(publicKey),
+    privateKey: new Uint8Array(privateKey),
+  };
 }
 
 /**
@@ -63,6 +70,27 @@ export async function computeSharedSecret(
   myPrivateKey: Uint8Array,
   theirPublicKey: Uint8Array,
 ): Promise<SharedSecret> {
-  // Implementation in step 4
-  throw new Error("Not implemented");
+  await sodium.ready;
+
+  if (
+    !(myPrivateKey instanceof Uint8Array) ||
+    myPrivateKey.length !== X25519_PRIVATE_KEY_LENGTH
+  ) {
+    throw new Error(
+      `Private key must be ${X25519_PRIVATE_KEY_LENGTH} bytes, got ${myPrivateKey instanceof Uint8Array ? myPrivateKey.length : "invalid"}`,
+    );
+  }
+
+  if (
+    !(theirPublicKey instanceof Uint8Array) ||
+    theirPublicKey.length !== X25519_PUBLIC_KEY_LENGTH
+  ) {
+    throw new Error(
+      `Public key must be ${X25519_PUBLIC_KEY_LENGTH} bytes, got ${theirPublicKey instanceof Uint8Array ? theirPublicKey.length : "invalid"}`,
+    );
+  }
+
+  const secret = sodium.crypto_scalarmult(myPrivateKey, theirPublicKey);
+
+  return new Uint8Array(secret) as SharedSecret;
 }
