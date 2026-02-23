@@ -24,12 +24,12 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@automerge/automerge": "^2.2.0",
+    "@automerge/automerge": "^3.2.4",
     "libsodium-wrappers-sumo": "^0.8.2"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.0.18"
   }
 }
