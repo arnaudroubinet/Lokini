@@ -1,6 +1,6 @@
 # T005 — X25519 key generation & exchange
 
-## Statut : `pending`
+## Statut : `in_progress`
 
 ## Description
 
