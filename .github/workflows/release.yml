@@ -56,7 +56,7 @@ jobs:
         run: pnpm build
 
       - name: Upload web artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: lokini-web
           path: packages/web/dist/
