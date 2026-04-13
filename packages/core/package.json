@@ -24,8 +24,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@automerge/automerge": "^3.2.4",
-    "libsodium-wrappers-sumo": "^0.8.2"
+    "@automerge/automerge": "^3.2.5",
+    "libsodium-wrappers-sumo": "^0.8.3"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
